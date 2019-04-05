@@ -9,7 +9,7 @@ Project also include sample UI class
 - Create symlink ```ln -s /path/to/file/app.py /usr/bin/bsnip```
 
 ### Features ###
-- Independed class for controlling snippets
+- Independent class for controlling snippets
 - Simple UI template
 - Save snippets to cloud (using [jsonstorage.net API wrapper](https://github.com/abrihter/jsonstorage-net-api-wrapper))
 
