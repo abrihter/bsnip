@@ -9,11 +9,13 @@ Simple UI for BSnip class
 versions:
     V1.0.0 [25.02.2019]
         - first wrking version
+    V1.1.0 [06.04.2019]
+        - added option to save snippets on jsonstorage.net
 '''
 
 __author__ = "Bojan"
 __license__ = "GPL"
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __maintainer__ = "Bojan"
 __status__ = "Development"
 
@@ -29,6 +31,11 @@ class UI:
         'list': 'List snippets',
         'search': 'Search snippets <bsnip search test>',
         'run': 'Run snippet <bsnip run 23>',
+        'save-cloud': 'Save snippets in cloud (using jsonstorage.net)',
+        'load-cloud': 'Load snippets from cloud (using jsonstorage.net)',
+        'get-cloud-id': 'Get local cloud ID',
+        'set-cloud-id': 'Set local cloud ID',
+        'list-cloud-for-id': 'List snippets online for cloud ID',
         '--version': 'App version',
         '--help': 'This help'
     }
@@ -144,10 +151,71 @@ class UI:
         return None
 
     def __command_list(self, snips):
-        '''liat command'''
+        '''list command'''
         if not snips:
             print('No data to display!')
+            return None
+        print('Snippets list:')
+        if self.bsnip.snips['snips-online-id']:
+            print('CLOUD ID:', self.bsnip.snips['snips-online-id'])
+        else:
+            print('CLOUD ID: not set')
         for snip in snips:
+            print('#{:5} {}'.format(snip['id'], snip['desc']))
+            print('>', snip['comm'])
+            print('----------')
+        return True
+
+    def __command_save_cloud(self):
+        '''save cloud command'''
+        if self.bsnip.write_db_cloud():
+            print('Snippets saved to cloud!')
+
+    def __command_load_cloud(self):
+        '''load cloud command'''
+        if not self.bsnip.get_snips_online_id():
+            print('Cloud ID need to be set!')
+            return None
+        if self.bsnip.load_db_cloud():
+            print('Snippets loaded from cloud!')
+        else:
+            print('Issues loading snippets from clud!')
+        return None
+
+    def __command_get_cloud_id(self):
+        '''get cloud id command'''
+        cloud_id = self.bsnip.get_snips_online_id()
+        if cloud_id:
+            print('Cloud ID:', cloud_id)
+        else:
+            print('Cloud ID not set!')
+
+    def __command_set_cloud_id(self):
+        '''set cloud id command'''
+        cloud_id = input('Enter cloud ID:')
+        if not cloud_id.strip():
+            if input('Confirm empty cloud ID [Y/n]:') != 'Y':
+                print('Cloud ID not changed!')
+                return None
+        self.bsnip.udate_snips_online_id(cloud_id.strip())
+        self.__command_get_cloud_id()
+        return None
+
+    def __command_list_cloud_snips_for_id(self):
+        '''list command from cloud for selected ID
+        :return bool: Return True if OK or none on issue
+        '''
+        cloud_id = input('Enter cloud ID to search for:')
+        snips = self.bsnip.get_snips_online_for_id(cloud_id)
+        if not snips:
+            print('Not valid snips ID!')
+            return None
+        print('Snippets list:')
+        if snips['snips-online-id']:
+            print('Cloud ID:', snips['snips-online-id'])
+        else:
+            print('Cloud ID: not set')
+        for snip in snips['snips']:
             print('#{:5} {}'.format(snip['id'], snip['desc']))
             print('>', snip['comm'])
             print('----------')
@@ -167,16 +235,26 @@ class UI:
         if command['comm'] == 'update':
             return self.__command_update(command)
         if command['comm'] == 'list':
-            return self.__command_list(self.bsnip.snips)
+            return self.__command_list(self.bsnip.snips['snips'])
         if command['comm'] == 'search':
             return self.__command_search(command)
         if command['comm'] == 'run':
             return self.__command_run(command)
+        if command['comm'] == 'save-cloud':
+            return self.__command_save_cloud()
+        if command['comm'] == 'load-cloud':
+            return self.__command_load_cloud()
+        if command['comm'] == 'get-cloud-id':
+            return self.__command_get_cloud_id()
+        if command['comm'] == 'set-cloud-id':
+            return self.__command_set_cloud_id()
+        if command['comm'] == 'list-cloud-for-id':
+            return self.__command_list_cloud_snips_for_id()
         if command['comm'] == '--help':
+            print('bSnip, simple snippet manager')
+            print('COMMANDS:')
             for comm in self.COMMANDS:
-                print('{:10} {}'.format(comm, self.COMMANDS[comm]))
+                print('{:20} {}'.format(comm, self.COMMANDS[comm]))
         elif command['comm'] == '--version':
             print(__version__)
         return None
-
-
