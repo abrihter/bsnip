@@ -31,10 +31,10 @@ class BSnip:
     def __init__(self):
         '''init'''
         self.db_path = os.path.join(os.path.expanduser('~'), '.bsnip')
-        self.snips = self.__load_db()
+        self.snips = self._load_db()
         self.cloud_api = bAPIWrapperJsonstorageNet()
 
-    def __load_db(self):
+    def _load_db(self):
         '''load db data set
         :return array: Returns DB data set
         '''
@@ -46,7 +46,7 @@ class BSnip:
         with open(self.db_path, 'r') as f:
             return json.loads(f.read())
 
-    def __write_db(self):
+    def _write_db(self):
         '''write db dataset
         :return bool: Returns True if all is OK
         '''
@@ -72,8 +72,8 @@ class BSnip:
                     #update with cloud ID
                     self.cloud_api.update(
                         self.snips['snips-online-id'], self.snips)
-                    self.__write_db()
-                    self.snips = self.__load_db()
+                    self._write_db()
+                    self.snips = self._load_db()
                 except Exception as e:
                     print(e)
                     return False
@@ -89,7 +89,7 @@ class BSnip:
         try:
             if self.snips['snips-online-id']:
                 self.snips = self.cloud_api.load(self.snips['snips-online-id'])
-                self.__write_db()
+                self._write_db()
             else:
                 return False
         except Exception as e:
@@ -111,7 +111,7 @@ class BSnip:
         :return bool: Return True if all is OK
         '''
         self.snips['snips-online-id'] = cloud_id
-        self.__write_db()
+        self._write_db()
         return True
 
     def get_snips_online_for_id(self, cloud_id):
@@ -146,7 +146,7 @@ class BSnip:
                 else:
                     snip['id'] = 1
                 self.snips['snips'].append(snip)
-                return self.__write_db()
+                return self._write_db()
             print('Description or command can\'t be empty!')
             return False
         return False
@@ -159,7 +159,7 @@ class BSnip:
         for i in range(len(self.snips['snips'])):
             if self.snips[i]['id'] == snippet_id:
                 del self.snips['snips'][i]
-                return self.__write_db()
+                return self._write_db()
         return False
 
     def update(self, snip):
@@ -180,7 +180,7 @@ class BSnip:
                     if self.snips['snips'][i]['id'] == snip['id']:
                         self.snips['snips'][i]['desc'] = snip['desc']
                         self.snips['snips'][i]['comm'] = snip['comm']
-                        return self.__write_db()
+                        return self._write_db()
                 return False
             print('Description or command can\'t be empty!')
             return False
