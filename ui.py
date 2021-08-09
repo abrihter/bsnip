@@ -45,7 +45,7 @@ class UI:
         self.params = sys.argv
         self.bsnip = bs
 
-    def __is_int(self, number):
+    def _is_int(self, number):
         '''check if it is integer
         :param number: To check
         :return int: Return integer value if converted or None on issue
@@ -55,7 +55,7 @@ class UI:
         except:
             return None
 
-    def __is_params_exist(self, command):
+    def _is_params_exist(self, command):
         '''check if params exist in command'''
         if 'params' in command:
             if not command['params']:
@@ -65,7 +65,7 @@ class UI:
         print('Please enter param(s)!')
         return None
 
-    def __parse_command(self):
+    def _parse_command(self):
         '''parse command
         :return dict: Return parsed command as dict or None on issue
         '''
@@ -81,7 +81,7 @@ class UI:
             command['params'] = self.params[2:]
         return command
 
-    def __command_add(self):
+    def _command_add(self):
         '''add command'''
         comm = input('Command:')
         desc = input('Description:')
@@ -91,13 +91,13 @@ class UI:
         }
         return self.bsnip.add(snip)
 
-    def __command_delete(self, command):
+    def _command_delete(self, command):
         '''delete command'''
         if 'params' in command:
             if not command['params']:
                 print('Please enter ID for snippet to delete!')
                 return None
-            snippet_id = self.__is_int(command['params'][0])
+            snippet_id = self._is_int(command['params'][0])
             if snippet_id:
                 return self.bsnip.delete(snippet_id)
             print('ID need to be integer!')
@@ -105,10 +105,10 @@ class UI:
         print('Please enter ID for snippet to run!')
         return None
 
-    def __command_update(self, command):
+    def _command_update(self, command):
         '''update command'''
-        if self.__is_params_exist(command):
-            snippet_id = self.__is_int(command['params'][0])
+        if self._is_params_exist(command):
+            snippet_id = self._is_int(command['params'][0])
             if snippet_id:
                 snip = self.bsnip.get_by_id(snippet_id)
                 if snip:
@@ -128,29 +128,29 @@ class UI:
             return None
         return None
 
-    def __command_run(self, command):
+    def _command_run(self, command):
         '''run command'''
-        if self.__is_params_exist(command):
-            snippet_id = self.__is_int(command['params'][0])
+        if self._is_params_exist(command):
+            snippet_id = self._is_int(command['params'][0])
             if snippet_id:
                 return self.bsnip.run(snippet_id)
             print('Command ID: {} not found!'.format(command['comm'][0]))
             return None
         return None
 
-    def __command_search(self, command):
+    def _command_search(self, command):
         '''search command'''
-        if self.__is_params_exist(command):
+        if self._is_params_exist(command):
             search_term = ' '.join(command['params'])
             snips = self.bsnip.search(search_term)
             if snips:
-                self.__command_list(snips)
+                self._command_list(snips)
                 return True
             print('Can\'t find snippets for search: [{}]!'.format(search_term))
             return None
         return None
 
-    def __command_list(self, snips):
+    def _command_list(self, snips):
         '''list command'''
         if not snips:
             print('No data to display!')
@@ -166,12 +166,12 @@ class UI:
             print('----------')
         return True
 
-    def __command_save_cloud(self):
+    def _command_save_cloud(self):
         '''save cloud command'''
         if self.bsnip.write_db_cloud():
             print('Snippets saved to cloud!')
 
-    def __command_load_cloud(self):
+    def _command_load_cloud(self):
         '''load cloud command'''
         if not self.bsnip.get_snips_online_id():
             print('Cloud ID need to be set!')
@@ -182,7 +182,7 @@ class UI:
             print('Issues loading snippets from clud!')
         return None
 
-    def __command_get_cloud_id(self):
+    def _command_get_cloud_id(self):
         '''get cloud id command'''
         cloud_id = self.bsnip.get_snips_online_id()
         if cloud_id:
@@ -190,7 +190,7 @@ class UI:
         else:
             print('Cloud ID not set!')
 
-    def __command_set_cloud_id(self):
+    def _command_set_cloud_id(self):
         '''set cloud id command'''
         cloud_id = input('Enter cloud ID:')
         if not cloud_id.strip():
@@ -198,10 +198,10 @@ class UI:
                 print('Cloud ID not changed!')
                 return None
         self.bsnip.udate_snips_online_id(cloud_id.strip())
-        self.__command_get_cloud_id()
+        self._command_get_cloud_id()
         return None
 
-    def __command_list_cloud_snips_for_id(self):
+    def _command_list_cloud_snips_for_id(self):
         '''list command from cloud for selected ID
         :return bool: Return True if OK or none on issue
         '''
@@ -225,31 +225,31 @@ class UI:
         '''run command
         :return bool: Return True if all is OK
         '''
-        command = self.__parse_command()
+        command = self._parse_command()
         if not command:
             return None
         if command['comm'] == 'add':
-            return self.__command_add()
+            return self._command_add()
         if command['comm'] == 'delete':
-            return self.__command_delete(command)
+            return self._command_delete(command)
         if command['comm'] == 'update':
-            return self.__command_update(command)
+            return self._command_update(command)
         if command['comm'] == 'list':
-            return self.__command_list(self.bsnip.snips['snips'])
+            return self._command_list(self.bsnip.snips['snips'])
         if command['comm'] == 'search':
-            return self.__command_search(command)
+            return self._command_search(command)
         if command['comm'] == 'run':
-            return self.__command_run(command)
+            return self._command_run(command)
         if command['comm'] == 'save-cloud':
-            return self.__command_save_cloud()
+            return self._command_save_cloud()
         if command['comm'] == 'load-cloud':
-            return self.__command_load_cloud()
+            return self._command_load_cloud()
         if command['comm'] == 'get-cloud-id':
-            return self.__command_get_cloud_id()
+            return self._command_get_cloud_id()
         if command['comm'] == 'set-cloud-id':
-            return self.__command_set_cloud_id()
+            return self._command_set_cloud_id()
         if command['comm'] == 'list-cloud-for-id':
-            return self.__command_list_cloud_snips_for_id()
+            return self._command_list_cloud_snips_for_id()
         if command['comm'] == '--help':
             print('bSnip, simple snippet manager')
             print('COMMANDS:')
